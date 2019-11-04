@@ -1,1 +1,93 @@
-{"user":{"admin":true},"students":{"Luke":{"sliders":{"Writeup":{"max":5,"min":0,"value":"3","id":"Writeup"},"new slider haha":{"id":"new slider haha","min":"2","max":"12","value":"7"},"new slider haha 2":{"id":"new slider haha 2","min":"2","max":"16","value":"13"},"new slider haha 2 2 2":{"id":"new slider haha 2 2 2","min":"2","max":"16","value":"10"}},"name":"Luke","isOpen":true},"Sosenna":{"sliders":{"Writeup":{"max":5,"min":0,"value":"5","id":"Writeup"},"new slider haha":{"id":"new slider haha","min":"2","max":"12","value":"6"},"new slider haha 2":{"id":"new slider haha 2","min":"2","max":"16","value":"4"},"new slider haha 2 2 2":{"id":"new slider haha 2 2 2","min":"2","max":"16","value":"2"}},"name":"Sosenna","isOpen":true}},"loading":false,"saveDataTimeoutId":138}
+{
+  "user": {
+    "admin": true
+  },
+  "students": {
+    "Luke": {
+      "sliders": {
+        "Writeup": {
+          "max": 5,
+          "min": 0,
+          "value": "1",
+          "id": "Writeup"
+        },
+        "new slider haha 2": {
+          "id": "new slider haha 2",
+          "min": "2",
+          "max": "16",
+          "value": "8"
+        },
+        "new slider haha 2 2 2": {
+          "id": "new slider haha 2 2 2",
+          "min": "2",
+          "max": "16",
+          "value": "10"
+        },
+        "new slider for lisa": {
+          "id": "new slider for lisa",
+          "min": "0",
+          "max": "123",
+          "value": "57"
+        },
+        "late": {
+          "id": "late",
+          "min": "-10",
+          "max": "0",
+          "value": "-8"
+        },
+        "sDF": {
+          "id": "sDF",
+          "min": "0",
+          "max": "10",
+          "value": "8"
+        }
+      },
+      "name": "Luke",
+      "isOpen": true
+    },
+    "Sosenna": {
+      "sliders": {
+        "Writeup": {
+          "max": 5,
+          "min": 0,
+          "value": "5",
+          "id": "Writeup"
+        },
+        "new slider haha 2": {
+          "id": "new slider haha 2",
+          "min": "2",
+          "max": "16",
+          "value": "4"
+        },
+        "new slider haha 2 2 2": {
+          "id": "new slider haha 2 2 2",
+          "min": "2",
+          "max": "16",
+          "value": "2"
+        },
+        "new slider for lisa": {
+          "id": "new slider for lisa",
+          "min": "0",
+          "max": "123",
+          "value": "46"
+        },
+        "late": {
+          "id": "late",
+          "min": "-10",
+          "max": "0",
+          "value": "0"
+        },
+        "sDF": {
+          "id": "sDF",
+          "min": "0",
+          "max": "10",
+          "value": "5"
+        }
+      },
+      "name": "Sosenna",
+      "isOpen": true
+    }
+  },
+  "loading": false,
+  "saveDataTimeoutId": 345
+}
