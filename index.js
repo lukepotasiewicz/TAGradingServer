@@ -1,6 +1,4 @@
-#!/opt/nodejs/v10/bin/node
-
-const http = require('unit-http');
+t http = require('unit-http');
 const fs = require('fs');
 const baseUrl = '/proxyserver';
 const app = {};
@@ -41,3 +39,4 @@ http.createServer(function (req, res) {
         res.end(e);
     }
 }).listen();
+
