@@ -17,17 +17,11 @@
           "max": "16",
           "value": "8"
         },
-        "new slider haha 2 2 2": {
-          "id": "new slider haha 2 2 2",
-          "min": "2",
-          "max": "16",
-          "value": "10"
-        },
         "new slider for lisa": {
           "id": "new slider for lisa",
           "min": "0",
           "max": "123",
-          "value": "57"
+          "value": "79"
         },
         "late": {
           "id": "late",
@@ -39,7 +33,7 @@
           "id": "sDF",
           "min": "0",
           "max": "10",
-          "value": "8"
+          "value": "7"
         }
       },
       "name": "Luke",
@@ -58,12 +52,6 @@
           "min": "2",
           "max": "16",
           "value": "4"
-        },
-        "new slider haha 2 2 2": {
-          "id": "new slider haha 2 2 2",
-          "min": "2",
-          "max": "16",
-          "value": "2"
         },
         "new slider for lisa": {
           "id": "new slider for lisa",
@@ -89,5 +77,5 @@
     }
   },
   "loading": false,
-  "saveDataTimeoutId": 345
+  "saveDataTimeoutId": 82
 }

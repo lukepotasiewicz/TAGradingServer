@@ -1,9 +1,9 @@
-const express = require('express');
-const cors = require('cors');
+#!/opt/nodejs/v10/bin/node
+
+const http = require('unit-http');
 const fs = require('fs');
-const app = express();
-const port = 4242;
-app.use(cors());
+const baseUrl = '/proxyserver';
+const app = {};
 
 const readDatabase = () => JSON.parse(fs.readFileSync('database.json'));
 
@@ -12,21 +12,32 @@ const writeDatabase = (data) => {
     fs.writeFileSync('database.json',  JSON.stringify({...oldData, ...data}));
 };
 
-app.get('/', (req, res) => res.send("welcome to my proxy server"));
+app[baseUrl] = (req, res) => res.write("welcome to my proxy server");
 
-app.get('/health', (req, res) => res.status(200).json({healthy: true}));
+app[baseUrl + '/health'] = (req, res) => {
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.write(JSON.stringify({healthy: true}));
+};
 
-// ----------- GET -----------
-app.get('/getData', (req, res) => {
+/* ----------- GET ----------- */
+app[baseUrl + '/getData'] = (req, res) => {
     const data = readDatabase();
     return res.status(200).json(data);
-});
+};
 
-// ----------- UPDATED -----------
-app.get('/updateData', (req, res) => {
+/* ----------- UPDATED ----------- */
+app[baseUrl + '/updateData'] = (req, res) => {
     if (!req.query.data) return res.status(400).json({error: "Bad request"});
     writeDatabase(JSON.parse(req.query.data));
     return res.status(200).json({queryString: req.query});
-});
+};
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+http.createServer(function (req, res) {
+    try {
+        app[req.url](req, res);
+        res.end();
+    }
+    catch (e) {
+        res.end(e);
+    }
+}).listen();
