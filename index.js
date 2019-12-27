@@ -15,6 +15,7 @@ const readAssignments = () => JSON.parse(fs.readFileSync('assignments.json'));
 const writeDatabase = (data) => {
   const oldData = readDatabase();
   fs.writeFileSync('database.json', JSON.stringify({...oldData, ...data}));
+<<<<<<< HEAD
 };
 const writeUsers = (data) => {
   const oldData = readUsers();
@@ -29,6 +30,8 @@ const getUser = (user) => {
   const users = readUsers();
   if (!users[user]) return {error: "User not found"};
   return users[user];
+=======
+>>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 app[baseUrl] = (req, res) => res.write("welcome to my proxy server");
@@ -40,6 +43,7 @@ app[baseUrl + '/health'] = (req, res) => {
 
 /* ----------- GET ----------- */
 app[baseUrl + '/getData'] = (req, res) => {
+<<<<<<< HEAD
   const {query} = url.parse(req.url, true);
   if (!query.user) return res.write(JSON.stringify({error: "Bad request"}));
   const data = readDatabase();
@@ -112,6 +116,10 @@ app[baseUrl + '/addSlider'] = (req, res) => {
   writeDatabase(database);
 
   return res.write(JSON.stringify({success: true}));
+=======
+  const data = readDatabase();
+  return res.write(JSON.stringify(data));
+>>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 app[baseUrl + '/addStudent'] = (req, res) => {
@@ -130,6 +138,7 @@ app[baseUrl + '/updateData'] = (req, res) => {
   if (!query.data) return res.write(JSON.stringify({error: "Bad request"}));
   writeDatabase(JSON.parse(query.data));
   return res.write(JSON.stringify({success: true}));
+<<<<<<< HEAD
 };
 
 /* ----------- DELETE ----------- */
@@ -185,6 +194,8 @@ app[baseUrl + '/deleteStudent'] = (req, res) => {
   database.students[query.student] = undefined;
   writeDatabase(database);
   return res.write(JSON.stringify({success: true}));
+=======
+>>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 http.createServer(function (req, res) {
