@@ -6,16 +6,14 @@ const fs = require('fs');
 const baseUrl = '/proxyserver';
 const app = {};
 
-const ADMIN = "lmpotasi";
-
 const readDatabase = () => JSON.parse(fs.readFileSync('database.json'));
 const readUsers = () => JSON.parse(fs.readFileSync('users.json'));
 const readAssignments = () => JSON.parse(fs.readFileSync('assignments.json'));
 
 const writeDatabase = (data) => {
   const oldData = readDatabase();
+  data.students = { ...oldData.students, ...data.students };
   fs.writeFileSync('database.json', JSON.stringify({...oldData, ...data}));
-<<<<<<< HEAD
 };
 const writeUsers = (data) => {
   const oldData = readUsers();
@@ -30,8 +28,6 @@ const getUser = (user) => {
   const users = readUsers();
   if (!users[user]) return {error: "User not found"};
   return users[user];
-=======
->>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 app[baseUrl] = (req, res) => res.write("welcome to my proxy server");
@@ -41,17 +37,20 @@ app[baseUrl + '/health'] = (req, res) => {
   res.write(JSON.stringify({healthy: true}));
 };
 
-/* ----------- GET ----------- */
+/* -------------------------------------------- GET -------------------------------------------- */
 app[baseUrl + '/getData'] = (req, res) => {
-<<<<<<< HEAD
   const {query} = url.parse(req.url, true);
   if (!query.user) return res.write(JSON.stringify({error: "Bad request"}));
   const data = readDatabase();
   data.user = getUser(query.user);
   if (!data.user.admin) {
-    const tempStudents = data.students;
-    data.students = {};
-    data.user.students.forEach((s) => data.students[s] = tempStudents[s]);
+    Object.keys(data.students).forEach((student) => {
+      Object.keys(data.students[student]).forEach((assignment) => {
+        if (data.students[student][assignment].grader !== query.user) {
+          data.students[student][assignment] = undefined;
+        }
+      })
+    });
   }
   return res.write(JSON.stringify(data));
 };
@@ -59,7 +58,7 @@ app[baseUrl + '/getData'] = (req, res) => {
 app[baseUrl + '/getAllUsers'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   return res.write(JSON.stringify(readUsers()));
 };
 
@@ -69,11 +68,11 @@ app[baseUrl + '/getAssignments'] = (req, res) => {
   return res.write(JSON.stringify(readAssignments()));
 };
 
-/* ----------- ADD ----------- */
+/* -------------------------------------------- ADD -------------------------------------------- */
 app[baseUrl + '/addUser'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.netId || !query.admin) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   writeUsers({
     [query.netId]: {
       admin: query.admin === "true",
@@ -86,7 +85,7 @@ app[baseUrl + '/addUser'] = (req, res) => {
 app[baseUrl + '/addAssignment'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.assignment) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   const assignments = readAssignments();
   assignments[query.assignment] = {sliders: {}, comment: {value: ""}};
   writeAssignments(assignments);
@@ -103,7 +102,7 @@ app[baseUrl + '/addAssignment'] = (req, res) => {
 app[baseUrl + '/addSlider'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.data || !query.assignment) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   const assignments = readAssignments();
   const newSlider = JSON.parse(query.data);
   assignments[query.assignment].sliders[newSlider.id] = newSlider;
@@ -116,36 +115,66 @@ app[baseUrl + '/addSlider'] = (req, res) => {
   writeDatabase(database);
 
   return res.write(JSON.stringify({success: true}));
-=======
-  const data = readDatabase();
-  return res.write(JSON.stringify(data));
->>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 app[baseUrl + '/addStudent'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.student) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   const database = readDatabase();
   database.students[query.student] = readAssignments();
   writeDatabase(database);
   return res.write(JSON.stringify(database));
 };
 
-/* ----------- UPDATE ----------- */
+/* -------------------------------------------- UPDATE -------------------------------------------- */
 app[baseUrl + '/updateData'] = (req, res) => {
   const {query} = url.parse(req.url, true);
-  if (!query.data) return res.write(JSON.stringify({error: "Bad request"}));
-  writeDatabase(JSON.parse(query.data));
+  if (!query.user || !query.data) return res.write(JSON.stringify({error: "Bad request"}));
+
+  // this code stops a user from updating data of students they are not assigned to
+  const data = JSON.parse(query.data);
+  const oldData = readDatabase();
+  data.user = getUser(query.user);
+  if (!data.user.admin) {
+    Object.keys(oldData.students).forEach((student) => {
+      Object.keys(oldData.students[student]).forEach((assignment) => {
+        if (oldData.students[student][assignment].grader === query.user) {
+          oldData.students[student][assignment] = data.students[student][assignment];
+        }
+      })
+    });
+    writeDatabase(oldData);
+  } else {
+    writeDatabase(data);
+  }
+
   return res.write(JSON.stringify({success: true}));
-<<<<<<< HEAD
 };
 
-/* ----------- DELETE ----------- */
+app[baseUrl + '/updateAssignmentGrader'] = (req, res) => {
+  const {query} = url.parse(req.url, true);
+  if (!query.user || !query.grader || !query.assignment || !query.student) return res.write(JSON.stringify({error: "Bad request"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
+
+  const { grader, assignment, student } = query;
+  const database = readDatabase();
+  if (!database.students[student]) {
+    return res.write(JSON.stringify({error: "Student not found"}));
+  }
+  if (!database.students[student][assignment]) {
+    return res.write(JSON.stringify({error: "Assignment not found"}));
+  }
+  database.students[student][assignment].grader = grader;
+  writeDatabase(database);
+  return res.write(JSON.stringify({success: true}));
+};
+
+/* -------------------------------------------- DELETE -------------------------------------------- */
 app[baseUrl + '/deleteUser'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.netId) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   writeUsers({
     [query.netId]: undefined
   });
@@ -155,7 +184,7 @@ app[baseUrl + '/deleteUser'] = (req, res) => {
 app[baseUrl + '/deleteAssignment'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.assignment) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   writeAssignments({
     [query.assignment]: undefined
   });
@@ -172,7 +201,7 @@ app[baseUrl + '/deleteAssignment'] = (req, res) => {
 app[baseUrl + '/deleteSlider'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.slider || !query.assignment) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   const assignments = readAssignments();
   assignments[query.assignment].sliders[query.slider] = undefined;
   writeAssignments(assignments);
@@ -189,13 +218,11 @@ app[baseUrl + '/deleteSlider'] = (req, res) => {
 app[baseUrl + '/deleteStudent'] = (req, res) => {
   const {query} = url.parse(req.url, true);
   if (!query.user || !query.student) return res.write(JSON.stringify({error: "Bad request"}));
-  if (query.user !== ADMIN) return res.write(JSON.stringify({error: "Permission Denied"}));
+  if (!getUser(query.user).admin) return res.write(JSON.stringify({error: "Permission Denied"}));
   const database = readDatabase();
   database.students[query.student] = undefined;
   writeDatabase(database);
   return res.write(JSON.stringify({success: true}));
-=======
->>>>>>> 7cc881a3ce5492995dc52eb07784f8ed3a5235cd
 };
 
 http.createServer(function (req, res) {
@@ -205,6 +232,7 @@ http.createServer(function (req, res) {
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
     });
     const {pathname} = url.parse(req.url, true);
+    req.url = decodeURI(req.url);
     app[pathname](req, res);
     res.end();
   } catch (e) {

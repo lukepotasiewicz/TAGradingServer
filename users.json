@@ -1,1 +1,11 @@
-{"lmpotasi":{"admin":true,"students":["Luke","Sosenna"]},"ldion":{"admin":true,"students":[]}}
+{
+  "lmpotasi": {
+    "admin": true
+  },
+  "ldion": {
+    "admin": true
+  },
+  "test": {
+    "admin": false
+  }
+}
